@@ -1,0 +1,29 @@
+name: Déploiement OWASP Juice Shop
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+     
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Deploy Juice Shop
+        run: |
+          docker pull bkimminich/juice-shop:latest
+          docker stop juice-shop || true
+          docker rm juice-shop || true
+          docker run -d -p 3000:3000 --name juice-shop bkimminich/juice-shop:latest
+
